@@ -1,0 +1,9 @@
+[submodule "ParlinfoSpeechScraper/PSSSourceXML"]
+	path = ParlinfoSpeechScraper/PSSSourceXML
+	url = git@github.com:Australian-Parliamentary-Speech/Download.git
+[submodule "ParlinfoSpeechScraper/PSSSourceSGML"]
+	path = ParlinfoSpeechScraper/PSSSourceSGML
+	url = git@github.com:Australian-Parliamentary-Speech/sgml2xml.git
+[submodule "ParlinfoSpeechScraper/PSSConvert"]
+	path = ParlinfoSpeechScraper/PSSConvert
+	url = git@github.com:Australian-Parliamentary-Speech/Scraper.git
