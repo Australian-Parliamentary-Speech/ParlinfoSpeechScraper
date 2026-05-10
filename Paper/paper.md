@@ -3,8 +3,8 @@ title: {{ ParlinfoSpeechScraper: A Julia package to scrape Hansard speech data}}
 date: {{ DD Month YYYY }} # Submission date
 authors:
     - name: {{ Eve Cheng }} # Name. See [here](https://joss.readthedocs.io/en/latest/paper.html#author-names)
-      affiliation: "{{ affiliation_1 }}, {{ affiliation_2 }}" # Affiliations
-      orcid: {{ orcid_1 }} # Orcid
+      affiliation: "{{ Mathematical Sciences Institute }}, {{ Australian National University }}" # Affiliations
+      orcid: {{ 0000-0003-3108-4000 }} # Orcid
       corresponding: true # Is this the corresponding author?
       equal-contrib: true # Did this author contribute the same as other `equal-contrib` authors?
     - name: {{ Patrick Armstrong }} # Name
@@ -38,7 +38,7 @@ Rohan's paper and some guy's scrape of all the dates?
 
 # State of the field
 
-The closest existing work is *Digitization of the Australian Parliamentary Debates, 1998–2022*, which scraped Hansard over a similar period using XPath-based extraction. ParlinfoSpeechScraper extends and improves on this in several respects. In terms of coverage, the existing work is limited to 1998–2022, whereas this software covers the full record from 1901 to the present and is designed to keep updating incrementally as new sittings are added, with no manual intervention required from the user. In terms of reliability, XPath-only extraction is sensitive to structural variation in the XML. For example, XPath-only extraction produces output where the ordering of speeches can be unreliable; the node-based traversal used here processes the document in document order, preserving the original sequence of contributions. In terms of extensibility, the existing code does not support multiple XML phases within a single run and is not structured for collaborative development or reuse. Because ParlinfoSpeechScraper isolates period-specific behaviour through Julia's multiple dispatch, a new phase can be added as a self-contained module when ParlInfo's XML schema changes in the future, without modifying the core pipeline. The existing approach would require significant reworking to accommodate such changes.
+The closest existing work is *Digitization of the Australian Parliamentary Debates, 1998–2022*, which scraped Hansard over a similar period using XPath-based extraction [@katz2023digitization]. ParlinfoSpeechScraper extends and improves on this in several respects. In terms of coverage, the existing work is limited to 1998–2022, whereas this software covers the full record from 1901 to the present and is designed to keep updating incrementally as new sittings are added, with no manual intervention required from the user. In terms of reliability, XPath-only extraction is sensitive to structural variation in the XML. For example, XPath-only extraction produces output where the ordering of speeches can be unreliable; the node-based traversal used here processes the document in document order, preserving the original sequence of contributions. In terms of extensibility, the existing code does not support multiple XML phases within a single run and is not structured for collaborative development or reuse. Because ParlinfoSpeechScraper isolates period-specific behaviour through Julia's multiple dispatch, a new phase can be added as a self-contained module when ParlInfo's XML schema changes in the future, without modifying the core pipeline. The existing approach would require significant reworking to accommodate such changes.
 
 {{ state_of_the_field }} # A description of how this software compares to other commonly-used packages in the research area. If related tools exist, provide a clear “build vs. contribute” justification explaining your unique scholarly contribution and why existing alternatives are insufficient.
 
