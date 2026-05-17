@@ -2,172 +2,128 @@
 icon: lucide/rocket
 ---
 
-# Get started
+# Overview
 
-For full documentation visit [zensical.org](https://zensical.org/docs/).
+This project is divided into three parts, which correspond to three repos: Download, sgml2xml, and Scraper. The repo Download downloads the XML files directly from the Parlinfo roadmap. The repo sgml2xml downloads the sgml files and convert them into XML files. This is for the years where the XML files are missing. Finally Scraper parses the XML files and produces CSV files that contain all the speech information. The detailed documentation is in the documentation page [here](https://australian-parliamentary-speech.github.io/Scraper/). 
 
-## Commands
+## Windows users
 
-* [`zensical new`][new] - Create a new project
-* [`zensical serve`][serve] - Start local web server
-* [`zensical build`][build] - Build your site
+All commands here work natively for Mac and Linux users.
 
-  [new]: https://zensical.org/docs/usage/new/
-  [serve]: https://zensical.org/docs/usage/preview/
-  [build]: https://zensical.org/docs/usage/build/
+Since this project uses bash scripts (e.g., ```./run house```), Windows users need a bash environment to run these commands. One option is to install [Git Windows](https://git-scm.com/downloads/win) to create a bash shell environment. Once installed, right click "Git Bash Here" and run bash commands there. 
 
-## Examples
+## Installation
 
-### Admonitions
+### Install Julia
 
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/)
+To run the package, Julia needs to be installed. For help see https://julialang.org/install/
 
-!!! note
 
-    This is a **note** admonition. Use it to provide helpful information.
+### Download the XML files
 
-!!! warning
-
-    This is a **warning** admonition. Be careful!
-
-### Details
-
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/#collapsible-blocks)
-
-??? info "Click to expand for more info"
-
-    This content is hidden until you click to expand it.
-    Great for FAQs or long explanations.
-
-## Code Blocks
-
-> Go to [documentation](https://zensical.org/docs/authoring/code-blocks/)
-
-``` python hl_lines="2" title="Code blocks"
-def greet(name):
-    print(f"Hello, {name}!") # (1)!
-
-greet("Python")
+Step one, in your preferred directory, for example HansardScraper/, clone the Download repo with HTTP or SSH:
+```
+cd HansardScraper
 ```
 
-1.  > Go to [documentation](https://zensical.org/docs/authoring/code-blocks/#code-annotations)
-
-    Code annotations allow to attach notes to lines of code.
-
-Code can also be highlighted inline: `#!python print("Hello, Python!")`.
-
-## Content tabs
-
-> Go to [documentation](https://zensical.org/docs/authoring/content-tabs/)
-
-=== "Python"
-
-    ``` python
-    print("Hello from Python!")
-    ```
-
-=== "Rust"
-
-    ``` rs
-    println!("Hello from Rust!");
-    ```
-
-## Diagrams
-
-> Go to [documentation](https://zensical.org/docs/authoring/diagrams/)
-
-``` mermaid
-graph LR
-  A[Start] --> B{Error?};
-  B -->|Yes| C[Hmm...];
-  C --> D[Debug];
-  D --> B;
-  B ---->|No| E[Yay!];
+```
+git clone https://github.com/Australian-Parliamentary-Speech/Download.git
 ```
 
-## Footnotes
+Go into the directory:
+```
+cd Download
+```
 
-> Go to [documentation](https://zensical.org/docs/authoring/footnotes/)
+In the directory (in a bash environment), run:
+```
+./run house
+```
+or
+```
+./run senate
+```
 
-Here's a sentence with a footnote.[^1]
-
-Hover it, to see a tooltip.
-
-[^1]: This is the footnote.
+The XML files should be in the directory sitemap_xmls_senate or sitemap_xmls_house.
 
 
-## Formatting
+### Download the SGML files and convert them to XML files
+Step one, in your preferred directory, for example HansardScraper/, clone the sgml2xml repo with HTTP or SSH:
+```
+cd HansardScraper
+```
+```
+git clone https://github.com/Australian-Parliamentary-Speech/sgml2xml.git
+```
 
-> Go to [documentation](https://zensical.org/docs/authoring/formatting/)
+Go into the directory
+```
+cd sgml2xml
+```
+ 
+In the directory (in a bash environment), run:
+```
+./run house
+```
 
-- ==This was marked (highlight)==
-- ^^This was inserted (underline)^^
-- ~~This was deleted (strikethrough)~~
-- H~2~O
-- A^T^A
-- ++ctrl+alt+del++
+or 
+```
+./run senate
+```
 
-## Icons, Emojis
+The XML files should be in the directory senate_xmls or house_xmls
 
-> Go to [documentation](https://zensical.org/docs/authoring/icons-emojis/)
 
-* :sparkles: `:sparkles:`
-* :rocket: `:rocket:`
-* :tada: `:tada:`
-* :memo: `:memo:`
-* :eyes: `:eyes:`
+### Parsing
 
-## Maths
+Step one, in your preferred directory, for example HansardScraper/, clone this repo with HTTP or SSH:
+```
+cd HansardScraper
+```
+```
+git clone https://github.com/Australian-Parliamentary-Speech/Scraper.git
+```
 
-> Go to [documentation](https://zensical.org/docs/authoring/math/)
+Go into the directory:
+```
+cd Scraper
+```
 
-$$
-\cos x=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k)!}x^{2k}
-$$
+If you have created these three directories in HansardScraper/ as the example, you can directory run in the directory:
 
-!!! warning "Needs configuration"
-    Note that MathJax is included via a `script` tag on this page and is not
-    configured in the generated default configuration to avoid including it
-    in a pages that do not need it. See the documentation for details on how
-    to configure it on all your pages if they are more Maths-heavy than these
-    simple starter pages.
+For Senate: 
+```
+./run Inputs/hansard/senate.toml
+```
 
-<script id="MathJax-script" src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [["\\(", "\\)"]],
-      displayMath: [["\\[", "\\]"]],
-      processEscapes: true,
-      processEnvironments: true
-    },
-    options: {
-      ignoreHtmlClass: ".*|",
-      processHtmlClass: "arithmatex"
-    }
-  };
+For House:
+```
+./run Inputs/hansard/house.toml
+```
 
-  document$.subscribe(() => {
-    MathJax.startup.output.clearCache()
-    MathJax.typesetClear()
-    MathJax.texReset()
-    MathJax.typesetPromise()
-  })
-</script>
+If you have created these directories differently, you would have to change the input directory in the house.toml file (details on how to change the file see [here](https://australian-parliamentary-speech.github.io/Scraper/))
 
-## Task Lists
 
-> Go to [documentation](https://zensical.org/docs/authoring/lists/#using-task-lists)
+The output file will be in Outputs/SenateCSV or Outputs/HouseCSV
 
-* [x] Install Zensical
-* [x] Configure `zensical.toml`
-* [x] Write amazing documentation
-* [ ] Deploy anywhere
+To run different year ranges or a specific year,senate.toml or house.toml file needs to be editted (details see [here](https://australian-parliamentary-speech.github.io/Scraper/)).
 
-## Tooltips
 
-> Go to [documentation](https://zensical.org/docs/authoring/tooltips/)
 
-[Hover me][example]
+For Windows users:
 
-  [example]: https://example.com "I'm a tooltip!"
+For Senate:
+
+In the directory (in a bash environment), run:
+```
+./run Inputs/hansard/senate.toml
+```
+
+For House:
+
+In the directory (in a bash environment), run:
+```
+./run Inputs/hansard/house.toml
+```
+
+If you have created these directories differently, you would have to change the input directory in the house.toml file (details on how to change the file see [here](https://australian-parliamentary-speech.github.io/Scraper/))
