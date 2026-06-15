@@ -7,3 +7,6 @@
 [submodule "ParlinfoSpeechScraper/PSSConvert"]
 	path = ParlinfoSpeechScraper/PSSConvert
 	url = git@github.com:Australian-Parliamentary-Speech/Scraper.git
+[submodule "ParlinfoSpeechScraper/PSSUtils"]
+	path = ParlinfoSpeechScraper/PSSUtils
+	url = git@github.com:Australian-Parliamentary-Speech/PSSUtils.git

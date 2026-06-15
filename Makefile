@@ -88,9 +88,14 @@ setup: ## Setup (Install and Update) ParlinfoSpeechScraper
 # === Run Commands ===
 #
 
-# Source XML files
+# --- Run ---
 
-.PHONY: SourceXML
+.PHONY: run
 
-SourceXML:
-	
+run: ## Run ParlinfoSpeechScraper
+	@printf "${GREEN}Running $(ID)${RESET}\n"
+	bin/run $(filter-out $@, $(MAKECMDGOALS))
+
+# Catchall to avoid collision between run args and targets
+%:
+	@true
