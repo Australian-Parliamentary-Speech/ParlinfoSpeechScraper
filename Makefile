@@ -23,6 +23,14 @@ else
 	CHECK_CMD = command -v $(1) >/dev/null 2>&1
 endif
 
+ifndef $(JULIA)
+	JULIA=julia
+endif
+
+ifndef $(JULIA_CMD)
+	JULIA_CMD=$(JULIA) --color=yes --startup-file=no
+endif
+
 #
 # === Setup Commands ===
 #
@@ -40,7 +48,7 @@ help: ## Show this help message
 
 # --- Install ---
 
-.PHONY: julia dependencies installcheck git-submodules install
+.PHONY: julia dependencies installcheck jl-init git-submodules install
 
 julia:
 	@printf "${DARK}Checking if Julia is installed${RESET}\n"
@@ -54,6 +62,9 @@ installcheck:
 	@printf "${DARK}Checking dependencies${RESET}\n"
 	@$(MAKE) dependencies
 
+jl-init:
+	@$(JULIA_CMD) -e "using Pkg; Pkg.instantiate()"
+
 git-submodules:
 	@printf "${DARK}%s${RESET}\n" "$$(git submodule update --init --recursive 2>&1)"
 
@@ -63,13 +74,17 @@ $(ID): # Ensure submodules exist
 
 install: installcheck ## Install ParlinfoSpeechScraper
 	@$(MAKE) $(ID)
+	@$(MAKE) jl-init
 
 # --- Update ---
 
-.PHONY: git-pull update
+.PHONY: git-pull jl-update update
 
 git-pull:
 	@printf "${DARK}%s${RESET}\n" "$$(git pull --recurse-submodules 2>&1)"
+
+jl-update:
+	@$(JULIA_CMD) -e "using Pkg; Pkg.update()"
 
 update: ## Update ParlinfoSpeechScraper
 	@printf "${GREEN}Updating $(ID)${RESET}\n"
@@ -88,9 +103,14 @@ setup: ## Setup (Install and Update) ParlinfoSpeechScraper
 # === Run Commands ===
 #
 
-# Source XML files
+# --- Run ---
 
-.PHONY: SourceXML
+.PHONY: run
 
-SourceXML:
-	
+run: ## Run ParlinfoSpeechScraper
+	@printf "${GREEN}Running $(ID)${RESET}\n"
+	bin/run $(filter-out $@, $(MAKECMDGOALS))
+
+# Catchall to avoid collision between run args and targets
+%:
+	@true
