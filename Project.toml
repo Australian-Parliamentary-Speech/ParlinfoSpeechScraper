@@ -1,0 +1,19 @@
+name = "ParlinfoSpeechScraper"
+version = "1.0.0"
+authors = [
+    "Eve Cheng <evecheng999@gmail.com>",
+    "Patrick Armstrong <patrick.james.1998@gmail.com>",
+]
+
+[workspace]
+projects = [
+    "test",
+    "docs",
+    "src/PSSConvert",
+    "src/PSSSourceXML",
+    "src/PSSSourceSGML",
+    "src/PSSUtils",
+]
+
+[compat]
+julia = "1.12"

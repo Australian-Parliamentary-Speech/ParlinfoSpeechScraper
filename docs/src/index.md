@@ -1,25 +1,24 @@
----
-icon: lucide/rocket
----
+# ParlinfoSpeechScraper  
 
-# Overview
+This project is divided into three parts, which correspond to three repos: Download, sgml2xml, and Scraper. The repo Download downloads the XML files directly from the Parlinfo roadmap. The repo sgml2xml downloads the SGML files and convert them into XML files. This is for the years where XML files are missing and only SGML files are available.  
 
-This project is divided into three parts, which correspond to three repos: Download, sgml2xml, and Scraper. The repo Download downloads the XML files directly from the Parlinfo roadmap. The repo sgml2xml downloads the sgml files and convert them into XML files. This is for the years where the XML files are missing. Finally Scraper parses the XML files and produces CSV files that contain all the speech information. The detailed documentation is in the documentation page [here](https://australian-parliamentary-speech.github.io/Scraper/). 
+There are some XML files that are corruptped or missing. For those we could recover, we have put them into Inputs/hansard/<house|senate>_reserve_xmls/ in the Scraper repo.
 
-## Windows users
+Scraper parses the raw XML files and produces CSV files that contain all the processed speech information. The detailed documentation is in the documentation page [here](https://australian-parliamentary-speech.github.io/Scraper/). 
+
+# Windows users
 
 All commands here work natively for Mac and Linux users.
 
 Since this project uses bash scripts (e.g., ```./run house```), Windows users need a bash environment to run these commands. One option is to install [Git Windows](https://git-scm.com/downloads/win) to create a bash shell environment. Once installed, right click "Git Bash Here" and run bash commands there. 
 
-## Installation
 
-### Install Julia
+# Install Julia
 
 To run the package, Julia needs to be installed. For help see https://julialang.org/install/
 
 
-### Download the XML files
+# Download the XML files
 
 Step one, in your preferred directory, for example HansardScraper/, clone the Download repo with HTTP or SSH:
 ```
@@ -47,7 +46,7 @@ or
 The XML files should be in the directory sitemap_xmls_senate or sitemap_xmls_house.
 
 
-### Download the SGML files and convert them to XML files
+# Download the SGML files and convert them to XML files
 Step one, in your preferred directory, for example HansardScraper/, clone the sgml2xml repo with HTTP or SSH:
 ```
 cd HansardScraper
@@ -74,7 +73,7 @@ or
 The XML files should be in the directory senate_xmls or house_xmls
 
 
-### Parsing
+# Parsing
 
 Step one, in your preferred directory, for example HansardScraper/, clone this repo with HTTP or SSH:
 ```
@@ -127,3 +126,8 @@ In the directory (in a bash environment), run:
 ```
 
 If you have created these directories differently, you would have to change the input directory in the house.toml file (details on how to change the file see [here](https://australian-parliamentary-speech.github.io/Scraper/))
+
+#(# Overall structure 
+The documentation page is arranged as follows:
+Normal usage in terms of inputs and outputs is explained in [Usage](usage.md#section-heading), and more advanced interaction that includes adding a node or phase type is explained in [Advanced usage](advusage.md#section-heading). The current implementation of different nodes in all phases is shown in [Nodes](nodes.md#section-heading). [Function references](functionreference.md#section-heading) shows all the docstrings in the program.)
+

@@ -1,4 +1,5 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+set -euo pipefail
 
 # Follow however many symlinks are needed to get the true directory and name of this script
 SOURCE=${BASH_SOURCE[0]}
@@ -11,18 +12,22 @@ SCRIPT_DIR=$( cd -P "$( dirname "$SOURCE" )/../" >/dev/null 2>&1 && pwd )
 SCRIPT_NAME="$( basename "$SCRIPT_DIR" )"
 
 function run {
-    cd ${SCRIPT_DIR}/${SCRIPT_NAME}/PSSSourceXML && make run ${@} -- -o $SCRIPT_DIR/output
-    cd ${SCRIPT_DIR}/${SCRIPT_NAME}/PSSSourceSGML && make run ${@} -- -o $SCRIPT_DIR/output
+    cd ${SCRIPT_DIR}/src/PSSSourceXML && make run ${1} -- -o $SCRIPT_DIR/output
+    cd ${SCRIPT_DIR}/src/PSSSourceSGML && make run ${1} -- -o $SCRIPT_DIR/output
+    TOML=${SCRIPT_DIR}/examples/${1}.toml
+    cd ${SCRIPT_DIR}/src/PSSConvert && make run ${TOML} -- -c ${@:2}
+    cd ${SCRIPT_DIR}/src/PSSSourceXML && make run ${@} -- -sc -o $SCRIPT_DIR/output
+    cd ${SCRIPT_DIR}/src/PSSSourceSGML && make run ${@} -- -sc -o $SCRIPT_DIR/output
 }
 
 function main {
    if [[ "${1}" == "all" ]]; then
-       run senate
-       run house
+       shift
+       run senate ${@}
+       run house ${@}
    else
-       run $@
+       run ${@}
    fi
 }
 
-main $@
-
+main ${@}
