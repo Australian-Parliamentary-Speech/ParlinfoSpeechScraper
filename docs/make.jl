@@ -1,21 +1,17 @@
 using Documenter
 using DocStringExtensions
-using Pkg
-
-push!(LOAD_PATH,"../src/")
-Pkg.develop(path = abspath(joinpath(@__DIR__, "../")))
-using ParlinfoSpeechScraper
+using PSSConvert
 
 #DocMeta.setdocmeta!(
-#    ParlinfoSpeechScraper,
+#    PSSConvert,
 #    :DocTestSetup,
-#    :(using ParlinfoSpeechScraper);
+#    :(using PSSConvert);
 #    recursive = true,
 #    )
 
 makedocs(
     sitename = "ParlinfoSpeechScraper Documentation",
-    modules = [ParlinfoSpeechScraper],
+    modules = [PSSConvert],
     pages = [
     "ParlinfoSpeechScraper" => "index.md",
     "XML download" => "download.md",
@@ -26,7 +22,6 @@ makedocs(
     "Function references" => "functionreference.md",
     "Testing" => "test.md",
     "Common errors and warnings" => "common_errors.md"
-#    "Summaries" => "summaries.md"
     ]
     )
 

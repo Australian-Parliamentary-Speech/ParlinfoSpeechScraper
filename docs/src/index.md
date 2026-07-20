@@ -1,131 +1,67 @@
 # ParlinfoSpeechScraper  
 
-This project is divided into three parts, which correspond to three repos: Download, sgml2xml, and Scraper. The repo Download downloads the XML files directly from the Parlinfo roadmap. The repo sgml2xml downloads the SGML files and convert them into XML files. This is for the years where XML files are missing and only SGML files are available.  
+This project downloads, parses, and reformats Hansard data into machine-readable CSV files. It's a single repo (a "monorepo") made up of four submodules under `src/`:
 
-There are some XML files that are corruptped or missing. For those we could recover, we have put them into Inputs/hansard/<house|senate>_reserve_xmls/ in the Scraper repo.
+- **PSSSourceXML** downloads Hansard XML files directly from Parlinfo's sitemap. See [Download the XML files](download.md).
+- **PSSSourceSGML** downloads and converts to XML the older SGML-only Hansard records (1981-1997) that were never published as XML. See [Download the SGML files and convert them to XML files](sgml2xml.md).
+- **PSSConvert** parses the raw XML files and produces the CSV files containing all processed speech information.
+- **PSSUtils** holds shared utilities (downloading, compression) used by the other three.
 
-Scraper parses the raw XML files and produces CSV files that contain all the processed speech information. The detailed documentation is in the documentation page [here](https://australian-parliamentary-speech.github.io/Scraper/). 
+These are no longer separate repos you clone individually - cloning `ParlinfoSpeechScraper` (with submodules) gets you all of them.
 
 # Windows users
 
 All commands here work natively for Mac and Linux users.
 
-Since this project uses bash scripts (e.g., ```./run house```), Windows users need a bash environment to run these commands. One option is to install [Git Windows](https://git-scm.com/downloads/win) to create a bash shell environment. Once installed, right click "Git Bash Here" and run bash commands there. 
-
+Since this project is driven by `make` and bash scripts, Windows users need a bash environment with `make` available to run these commands. One option is to install [Git Windows](https://git-scm.com/downloads/win) to create a bash shell environment. Once installed, right click "Git Bash Here" and run the commands below there.
 
 # Install Julia
 
 To run the package, Julia needs to be installed. For help see https://julialang.org/install/
 
+# Installation
 
-# Download the XML files
-
-Step one, in your preferred directory, for example HansardScraper/, clone the Download repo with HTTP or SSH:
+Clone the repo along with its submodules:
 ```
-cd HansardScraper
-```
-
-```
-git clone https://github.com/Australian-Parliamentary-Speech/Download.git
+git clone --recurse-submodules https://github.com/Australian-Parliamentary-Speech/ParlinfoSpeechScraper.git
+cd ParlinfoSpeechScraper
 ```
 
-Go into the directory:
+Then install everything (checks Julia is available, pulls in any submodules you didn't clone with `--recurse-submodules`, and instantiates the Julia environment):
 ```
-cd Download
+make install
 ```
 
-In the directory (in a bash environment), run:
+# Running the pipeline
+
+From the root of the repo:
 ```
-./run house
+make run house
 ```
 or
 ```
-./run senate
+make run senate
+```
+or, to run both:
+```
+make run all
 ```
 
-The XML files should be in the directory sitemap_xmls_senate or sitemap_xmls_house.
+This runs the full pipeline for the given house: downloading XML (`PSSSourceXML`), downloading and converting SGML (`PSSSourceSGML`), parsing everything into CSVs (`PSSConvert`), then compressing all of it. See [Download the XML files](download.md), [Download the SGML files and convert them to XML files](sgml2xml.md), [Usage](usage.md#section-heading), and [Advanced usage](advusage.md#section-heading) for what each stage produces and how to configure it.
 
+# Make targets
 
-# Download the SGML files and convert them to XML files
-Step one, in your preferred directory, for example HansardScraper/, clone the sgml2xml repo with HTTP or SSH:
-```
-cd HansardScraper
-```
-```
-git clone https://github.com/Australian-Parliamentary-Speech/sgml2xml.git
-```
+Run `make help` (or just `make`, since `help` is the default target) from the repo root to see this list. Commands you'd normally run directly:
 
-Go into the directory
-```
-cd sgml2xml
-```
- 
-In the directory (in a bash environment), run:
-```
-./run house
-```
+| Target | What it does |
+|---|---|
+| `make help` | Prints this list of targets. |
+| `make install` | Checks Julia is installed, ensures submodules are checked out (`git submodule update --init --recursive`), and runs `Pkg.instantiate()`. Run this once after cloning. |
+| `make update` | Pulls the latest changes (`git pull --recurse-submodules`) and re-syncs submodules. This only updates the *code* - it does not re-download or refresh any of the scraped data in `output/`. To refresh the data itself, re-run `make run house`/`senate`/`all` (see below). |
+| `make setup` | Runs `install` then `update` - the one-shot "get me fully up to date" command. |
+| `make run <house\|all>` | Runs the full pipeline (see above) for `house`, `senate`, or `all`. Any extra arguments are forwarded down to `PSSConvert`. |
 
-or 
-```
-./run senate
-```
-
-The XML files should be in the directory senate_xmls or house_xmls
-
-
-# Parsing
-
-Step one, in your preferred directory, for example HansardScraper/, clone this repo with HTTP or SSH:
-```
-cd HansardScraper
-```
-```
-git clone https://github.com/Australian-Parliamentary-Speech/Scraper.git
-```
-
-Go into the directory:
-```
-cd Scraper
-```
-
-If you have created these three directories in HansardScraper/ as the example, you can directory run in the directory:
-
-For Senate: 
-```
-./run Inputs/hansard/senate.toml
-```
-
-For House:
-```
-./run Inputs/hansard/house.toml
-```
-
-If you have created these directories differently, you would have to change the input directory in the house.toml file (details on how to change the file see [here](https://australian-parliamentary-speech.github.io/Scraper/))
-
-
-The output file will be in Outputs/SenateCSV or Outputs/HouseCSV
-
-To run different year ranges or a specific year,senate.toml or house.toml file needs to be editted (details see [here](https://australian-parliamentary-speech.github.io/Scraper/)).
-
-
-
-For Windows users:
-
-For Senate:
-
-In the directory (in a bash environment), run:
-```
-./run Inputs/hansard/senate.toml
-```
-
-For House:
-
-In the directory (in a bash environment), run:
-```
-./run Inputs/hansard/house.toml
-```
-
-If you have created these directories differently, you would have to change the input directory in the house.toml file (details on how to change the file see [here](https://australian-parliamentary-speech.github.io/Scraper/))
+A few smaller targets exist that the ones above call internally, and aren't normally run by hand: `julia`/`dependencies`/`installcheck` (verify Julia is on `PATH`), `jl-init` (`Pkg.instantiate()`), `jl-update` (`Pkg.update()`), and `git-submodules`/`git-pull` (the underlying git operations).
 
 #(# Overall structure 
 The documentation page is arranged as follows:

@@ -1,88 +1,57 @@
-
 # Download the XML files
-This step downloads all the available XML files from the Hansard directly
 
-Step one, in your preferred directory, clone the Download repo with HTTP or SSH:
-```
-git clone https://github.com/Australian-Parliamentary-Speech/Download.git
-```
+This step downloads all the available Hansard XML files directly, by crawling the sitemap on the Parlinfo website. It's implemented by the `PSSSourceXML` package, which lives at `src/PSSSourceXML` as a submodule of this repo.
 
-Go into the directory:
-```
-cd Download
-```
+## Output layout
 
-In the directory, run:
+Given an output directory `output/` (the default), files land in:
+
 ```
-./run house
-```
-or
-```
-./run senate
+output/source_xml/<house>/
+├── sitemaps/                                # step 1: raw sitemap XML pages
+├── htmls/                                   # step 4: downloaded Hansard HTML pages
+├── interim/                                 # step 2/3/5: intermediate url and link-diff files
+├── xmls/<year>/<year>_<month>_<day>.xml     # step 6: the XML output
+└── logs/                                    # log output
 ```
 
-The XML files should be in the directory sitemap\_xmls\_senate or sitemap\_xmls\_house.
+Once a run is compressed, this entire `<house>/` directory is archived to `output/source_xml/<house>.tar.zst` and the directory is deleted. If a `<house>.tar.zst` from a previous run already exists when a new run starts, it's decompressed automatically before processing continues.
 
-## Required files
-XML\_download\_method1.jl
+## Re-running / incremental updates
 
-utils.jl
+Most steps check whether their own output already exists and skip themselves if so, which makes re-running mostly incremental - with two exceptions worth knowing about:
 
-download\_utils.jl 
+- **Step 1 always re-runs.** The sitemap index page gets overwritten in place on the server each time, so a cached local copy can't be trusted as "already downloaded."
+- **Steps 2, 3 and 5 key their working files off *today's date*.** Each run diffs today's freshly-extracted link list against the accumulated list from all previous runs (`interim/urls.txt`) to find what's new, then merges the new links back in for next time. There's no explicit same-day lock or error if it's run twice in one day - it just re-extracts today's links and diffs again, which is a no-op if nothing changed on the server since the last run that day.
 
-run (bash file)
+## Implementation details (steps)
 
-## logfile
-The logfiles are in sitemap\_logfiles/. It contains information on how many links in total were detected (to compare with the parlinfo website) and how many missing were updated from this run. This directory will be generated upon running.
+The pipeline is a chain of steps implemented in `src/PSSSourceXML/src/PSSSourceXML.jl`, each one invoking the next:
 
-## To update the download (Needs change)
-The update process does not download all files again, it downloads only the files that are not present in the current directory. 
+### Step 1: Download the sitemap index pages
 
-The same command above can be used again to update the XMLs:
-In the directory, run:
-```
-./run house
-```
-or
-```
-./run senate
-```
-The program will detect what already exists and update what is not there. For this to work, please do not delete any folders generated from the last run. An error will occur if you run the program twice in a day. This is to prevent over-writing. 
+Downloads `https://parlinfo.aph.gov.au/sitemap/sitemapindex.xml`, then downloads each individual sitemap page it references into `sitemaps/`.
 
-## Implementation details
-### Step 1: download the first layer XML pages 
+### Step 2: Extract Hansard links
 
-The first step downloads each XML page provided by the first sitemap. Each of these pages would contain a list of HTML links. This step will run every time regardless if previous runs were conducted. The reason for that is this first link gets updated with overwritten names everytime. 
+Reads every sitemap page in `sitemaps/`, filters to links that look like Hansard content for the requested house (matched via a `hansardr`/`hansards` substring), and writes the deduplicated list to `interim/<today>_urls.txt`.
 
-### Step 2: extract all the html links
+### Step 3: Diff against the existing link list
 
-The second step extracts all the HTML links from the XML files downloaded in step 1 into a csv file **sitemap\_html\_step2_<dateofcreation>.csv**.
+Compares `interim/<today>_urls.txt` against the accumulated `interim/urls.txt`, writes anything new to `interim/missing_urls.txt`, and merges it into `interim/urls.txt` so future runs treat it as already known.
 
-### Step 3: compare the current csv with any existing file
+### Step 4: Download the HTML pages
 
-This step is run if any other csv from the previous run is detected. It compares the csv generated in step 2 and the previous csv and generate a csv file containing the HTML links in current run and not in the previous run. The resulting file would be named **sitemap\_html\_step2\_missing.csv**.
+Downloads every URL listed in `missing_urls.txt` into `htmls/`, named by the page's query string.
 
-If no existing previous run is detected, this step will not run.
+### Step 5: Extract XML and PDF links
 
-### Step 4: download the html files
+Parses each downloaded HTML page to find its Hansard document's XML and PDF download links, writing `date`, `xml_link`, `pdf_link`, `file` to `interim/<today>_xmls.csv`.
 
-This step downloads all the HTML files either from the missing ones or the entire csv from step 2, depending on if previous run was detected. The html files will be downloaded to directory **sitemap\_htmls\_step4\_<dateofcreation>**. If any file has failed t download, the links would appear in the log file in directory **sitemap\_logfiles/**.
+### Step 6: Download the XML files
 
-### Step 5: extract the xml links 
+Downloads every XML link listed in `interim/<today>_xmls.csv` into `xmls/<year>/<year>_<month>_<day>.xml`.
 
-This step extracts all the missing xml links (or the complete set) into a csv called **site\_map\_xml\_step5\_<dateofcreation>.csv**
+### Step 7: Compress (optional)
 
-### Step 6: download the xml files
-
-This step downloads the xml files from the links provided in step 5 into **sitemap\_xmls/**.
-
-### Step 7: add the new xml links into the existing file and remove the old run.
-
-This step just cleans up the old files and gets ready for the next run. The total number of links detected will also show up in the logfile to compare with the result from <https://parlinfo.aph.gov.au/parlInfo/search/summary/summary.w3p;adv%3Dyes;orderBy%3D_fragment_number,doc_date-rev;query%3DDataset%3Ahansardr,hansardr80;resCount%3DDefault>. It is recommened to delete some of the **sitemap\_htmls\_step4\_<dateofcreation>** so they don't stack up too much. But it is not necessary. 
-
-
-
-
-
-
-
+If compression was requested, archives everything under `source_xml/<house>/` into `source_xml/<house>.tar.zst` and removes the uncompressed directory.

@@ -1,40 +1,59 @@
 # Function references
 
 ```@meta
-CurrentModule = ParlinfoSpeechScraper
+CurrentModule = PSSConvert
 ```
 
 ```@autodocs
-Modules = [ParlinfoSpeechScraper]
+Modules = [PSSConvert]
 ```
 
 ## RunModule
 ```@meta
-CurrentModule = ParlinfoSpeechScraper.RunModule
+CurrentModule = PSSConvert.RunModule
 ```
 
 ```@autodocs
 Modules = [RunModule]
 ```
 
+## Utils
+
+```@meta
+CurrentModule = PSSConvert.RunModule.Utils
+```
+
+```@autodocs
+Modules = [Utils]
+```
+
 ## XMLModule
 
 ```@meta
-CurrentModule = ParlinfoSpeechScraper.RunModule.EditModule
+CurrentModule = PSSConvert.RunModule.XMLModule
+```
+
+```@autodocs
+Modules = [XMLModule]
+```
+
+## EditModule
+```@meta
+CurrentModule = PSSConvert.RunModule.EditModule
 ```
 
 ```@autodocs
 Modules = [EditModule]
 ```
+
 ## NodeModule
 
 ```@meta
-CurrentModule = ParlinfoSpeechScraper.RunModule.NodeModule
+CurrentModule = PSSConvert.RunModule.NodeModule
 ```
 
 ```@autodocs
 Modules = [NodeModule]
 ```
-
 
 

@@ -2,8 +2,8 @@
 
 ## How to test
 
-Head into Scraper directory after cloning, in terminal type:
-`julia`
+Head into the `src/PSSConvert` directory after cloning the repo (and initializing submodules), in terminal type:
+`julia --project=.`
 
 In Julia REPL, press `]`
 
@@ -11,6 +11,10 @@ Then run test by
 `test`
 
 The suite of tests will be run. There are three sets of tests you can run, gold standard testing, dates summary and toy xml testing. 
+
+### Compressed data
+
+The gold standard and dates summary tests read from `output/source_csv/<house>`, which normally ships compressed as `output/source_csv/<house>.tar.zst` rather than as a plain directory. `test/runtests.jl` handles this automatically: before running, it decompresses the archive into a disposable scratch directory (leaving the original `.tar.zst` untouched), and removes that scratch directory again once the tests finish. You don't need to decompress anything by hand before testing.
 
 ## Gold standard testing
 
