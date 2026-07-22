@@ -15,9 +15,9 @@ function run {
     cd ${SCRIPT_DIR}/src/PSSSourceXML && make run ${1} -- -o $SCRIPT_DIR/output
     cd ${SCRIPT_DIR}/src/PSSSourceSGML && make run ${1} -- -o $SCRIPT_DIR/output
     TOML=${SCRIPT_DIR}/examples/${1}.toml
-    cd ${SCRIPT_DIR}/src/PSSConvert && make run ${TOML} -- -c ${@:2}
-    cd ${SCRIPT_DIR}/src/PSSSourceXML && make run ${@} -- -sc -o $SCRIPT_DIR/output
-    cd ${SCRIPT_DIR}/src/PSSSourceSGML && make run ${@} -- -sc -o $SCRIPT_DIR/output
+    cd ${SCRIPT_DIR}/src/PSSConvert && make run ${TOML} -- ${@:2}
+#    cd ${SCRIPT_DIR}/src/PSSSourceXML && make run ${@} -- -sc -o $SCRIPT_DIR/output
+#    cd ${SCRIPT_DIR}/src/PSSSourceSGML && make run ${@} -- -sc -o $SCRIPT_DIR/output
 }
 
 function main {
