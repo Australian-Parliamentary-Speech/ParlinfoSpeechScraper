@@ -154,6 +154,8 @@ The system returns **two similarity ratios**:
 
 The maximum similarity ratio is generally **less than 1**, even though the files being compared are identical. This is expected behaviour and reflects inherent limitations of content-based row matching. In particular, some speeches consist of very short or highly repetitive phrases (such as *“hear, hear”*), which are not unique identifiers. In such cases, the matching algorithm cannot always determine unambiguously which row corresponds to which, leading to a non-perfect similarity score even for identical files.
 
+Gold-standard files reflect the state of the scraped output at the time they were manually corrected. As the scraping pipeline receives further fixes, the current output can diverge from the version the gold standard was originally checked against. Some of the discrepancies flagged by the similarity score therefore reflect an outdated gold standard rather than a regression in the current output. As a result, the similarity ratio should be treated as a conservative estimate: actual output quality is typically higher than the reported ratio, until the gold-standard files are refreshed against the current output.
+
 ## Dates summary test
 
 This summary test checks for missing or unprocessed dates in the scraping pipeline by comparing the XML input and CSV output against `test_inputs/sitting_dates.csv` — the authoritative list of every parliamentary sitting date, pulled from the Hansard API.  
