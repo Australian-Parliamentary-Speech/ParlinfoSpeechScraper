@@ -1,6 +1,6 @@
 using Documenter
 using DocStringExtensions
-using PSSConvert
+import PSSConvert
 
 #DocMeta.setdocmeta!(
 #    PSSConvert,
