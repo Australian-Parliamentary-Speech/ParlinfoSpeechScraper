@@ -14,7 +14,7 @@ The suite of tests will be run. There are three sets of tests you can run, gold 
 
 ### Compressed data
 
-The gold standard and dates summary tests read from `output/source_csv/<house>`, which normally ships compressed as `output/source_csv/<house>.tar.zst` rather than as a plain directory. `test/runtests.jl` handles this automatically: before running, it decompresses the archive into a disposable scratch directory (leaving the original `.tar.zst` untouched), and removes that scratch directory again once the tests finish. You don't need to decompress anything by hand before testing.
+The gold standard and dates summary tests run once for `house` and once for `senate`, and each reads from `output/source_csv/<house>`, which normally ships compressed as `output/source_csv/<house>.tar.zst` rather than as a plain directory. `test/runtests.jl` handles this automatically: before running, it decompresses each archive it needs into a disposable scratch directory (leaving the original `.tar.zst` untouched), and removes that scratch directory again once the tests finish. You don't need to decompress anything by hand before testing — but since this now happens for both houses on every run, expect roughly double the decompression time and disk usage compared to testing a single house.
 
 ## Test output structure
 
@@ -47,6 +47,8 @@ This testing requires two toml files, one is the same input file for the Scraper
 
   To skip a test, remove its string from the list. For example, `which_tests = ["summary"]` runs only the dates summary test.
 
+  `"gold_standard"` and `"summary"` always run against **both** `house` and `senate` automatically — there's no separate house/senate toggle to set. `"toy_xml_test"` is house-agnostic and always runs once regardless.
+
 - **`skip_cols`**  
   A list of column names to exclude from the similarity comparison.  
 
@@ -63,13 +65,6 @@ This testing requires two toml files, one is the same input file for the Scraper
   - The second element specifies the step size (interval) between successive samples.  
   For example, `[5, 2]` means that samples of 5 consecutive words are taken, starting every 2 words along the speech.
 
-- **`which_house`**  
-  Indicates which parliamentary house the data belongs to and should be tested against.  
-  This is used to select the appropriate gold-standard reference files and parsing rules.  
-  Common values include:
-  - `"house"`: House of Representatives  
-  - `"senate"`: Senate
-
 ### Sample input file
 
 ```
@@ -78,7 +73,6 @@ This testing requires two toml files, one is the same input file for the Scraper
     #or exact
     which_test = "fuzzy"
     fuzzy_search = [5,2]
-    which_house = "house"
     which_tests = ["gold_standard","summary","toy_xml_test","MP_specific_gs"]
 ```
 
@@ -170,7 +164,7 @@ The test performs the following checks:
 - **XML vs official sitting days**  
   Compares XML dates against the sitting days in `sitting_dates.csv` to identify sitting days for which no XML file exists.
 
-Depending on `which_house`, the comparison is performed against either the House of Representatives or Senate sitting calendar.
+The test runs once for each house, comparing against the matching sitting calendar (House of Representatives or Senate) each time.
 
 The test writes its full date listings, along with the diagnostic mismatches, to `test_outputs/dates/`:
 
@@ -187,7 +181,7 @@ The test always passes and is intended to provide a diagnostic summary rather th
 
 This test block implements **toy XML tests**, which are designed to validate the XML parsing pipeline using small, hand-crafted XML files that target specific edge cases.
 
-The test runs only when `"toy_xml_test"` is included in `which_tests`.
+The test runs only when `"toy_xml_test"` is included in `which_tests`. Unlike gold standard testing and the dates summary test, it isn't house-specific — it runs once per test invocation (parsed as `house`), regardless of house, since its gold-standard comparisons in `xml_gold_standard/` aren't split by house.
 
 ### Purpose
 
