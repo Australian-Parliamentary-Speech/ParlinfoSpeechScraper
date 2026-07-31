@@ -16,6 +16,72 @@ The suite of tests will be run. There are three sets of tests you can run, gold 
 
 The gold standard and dates summary tests read from `output/source_csv/<house>`, which normally ships compressed as `output/source_csv/<house>.tar.zst` rather than as a plain directory. `test/runtests.jl` handles this automatically: before running, it decompresses the archive into a disposable scratch directory (leaving the original `.tar.zst` untouched), and removes that scratch directory again once the tests finish. You don't need to decompress anything by hand before testing.
 
+## Test output structure
+
+Every test writes its results under `test/test_outputs/`, in its own subdirectory:
+
+```
+test_outputs/
+├── gs_outputs/<house>/       written by "gold_standard"
+├── dates/                    written by "summary"
+└── xml_test_outputs/<Phase>/ written by "toy_xml_test"
+```
+
+- **`gs_outputs/<house>/`** — one subdirectory per house (`house` or `senate`). Inside, a folder for each date, plus a `CSVs/` folder holding the overall summary CSVs.
+- **`dates/`** — a flat set of summary CSVs, one per house.
+- **`xml_test_outputs/<Phase>/`** — one subdirectory per XML parsing phase, each holding one sample CSV per toy XML edge case.
+
+Each directory is only written to when the matching string is present in `which_tests`, in `test_inputs/test.toml` — see [`which_tests`](#Test-Parameters) below for how to edit that list. The sections below go through each test in detail, including exactly what each output file contains.
+
+## Input test toml file
+This testing requires two toml files, one is the same input file for the Scraper program (with slight modification of the output\_path), and the other one specifically designed for this testing suite. 
+
+### Test Parameters
+
+- **`which_tests`**  
+  Controls which test suites actually run when you invoke `] test` — this is the setting to edit if you only want to run some of the tests. It's a list containing any combination of:
+  - `"gold_standard"` — Gold standard testing; writes to `test_outputs/gs_outputs/<house>/`
+  - `"summary"` — Dates summary test; writes to `test_outputs/dates/`
+  - `"toy_xml_test"` — Toy XML Tests; writes to `test_outputs/xml_test_outputs/<Phase>/`
+  - `"MP_specific_gs"` — the per-MP breakdown described under Gold standard testing; only has an effect if `"gold_standard"` is also in the list, since it runs nested inside that test
+
+  To skip a test, remove its string from the list. For example, `which_tests = ["summary"]` runs only the dates summary test.
+
+- **`skip_cols`**  
+  A list of column names to exclude from the similarity comparison.  
+
+- **`which_test`**  
+  Specifies the matching strategy used to align rows between the gold-standard CSV and the scraped output.  
+  - `"exact"`: Rows are matched only if the full speech text matches exactly.  
+  - `"fuzzy"`: Rows are matched using sampled word sequences from the speech text, allowing for minor textual differences.
+
+- **`fuzzy_search`**  
+  Controls how speech text is sampled in fuzzy matching mode.  
+  This option is only used when `which_test = "fuzzy"`.  
+  The value is a two-element array:
+  - The first element specifies the number of consecutive words in each sample.
+  - The second element specifies the step size (interval) between successive samples.  
+  For example, `[5, 2]` means that samples of 5 consecutive words are taken, starting every 2 words along the speech.
+
+- **`which_house`**  
+  Indicates which parliamentary house the data belongs to and should be tested against.  
+  This is used to select the appropriate gold-standard reference files and parsing rules.  
+  Common values include:
+  - `"house"`: House of Representatives  
+  - `"senate"`: Senate
+
+### Sample input file
+
+```
+[ test_params ]
+    skip_cols = ["speaker_no","non_speech_flag","page.no","name","electorate","party","role","path","Speaker","Time","Other"]
+    #or exact
+    which_test = "fuzzy"
+    fuzzy_search = [5,2]
+    which_house = "house"
+    which_tests = ["gold_standard","summary","toy_xml_test","MP_specific_gs"]
+```
+
 ## Gold standard testing
 
 To ensure the quality of our data extraction process—from XML files to CSV files before database upload—we use a **gold-standard testing approach**. This helps us measure how accurately our scraper reproduces the information contained in Hansard documents.
@@ -90,7 +156,7 @@ The maximum similarity ratio is generally **less than 1**, even though the files
 
 ## Dates summary test
 
-This summary test checks for missing or unprocessed dates in the scraping pipeline.  
+This summary test checks for missing or unprocessed dates in the scraping pipeline by comparing the XML input and CSV output against `test_inputs/sitting_dates.csv` — the authoritative list of every parliamentary sitting date, pulled from the Hansard API.  
 It runs only when `"summary"` is included in `which_tests`.
 
 The test performs the following checks:
@@ -100,14 +166,17 @@ The test performs the following checks:
 
 
 - **XML vs official sitting days**  
-  Compares XML dates against an authoritative list of parliamentary sitting days to identify sitting days for which no XML file exists.
+  Compares XML dates against the sitting days in `sitting_dates.csv` to identify sitting days for which no XML file exists.
 
 Depending on `which_house`, the comparison is performed against either the House of Representatives or Senate sitting calendar.
 
-For diagnostic purposes, the test writes lists of problematic dates to:
+The test writes its full date listings, along with the diagnostic mismatches, to `test_outputs/dates/`:
 
-- `test_outputs/dates/only_in_xml_<house>.csv`
-- `test_outputs/dates/only_in_sitting_<house>.csv`
+- `all_xml_dates_<house>.csv` — every date found across the XML input directories
+- `all_csv_dates_<house>.csv` — every date found in the CSV output directory
+- `only_in_xml_<house>.csv` — dates present in the XML input with no corresponding CSV output
+- `only_in_sitting_not_xml_<house>.csv` — official sitting dates with no corresponding XML file
+- `only_in_sitting_not_csv_<house>.csv` — official sitting dates with no corresponding CSV output
 
 The test always passes and is intended to provide a diagnostic summary rather than enforce a hard failure.
 
@@ -155,45 +224,4 @@ Adding a new XML edge case is intentionally simple. Users only need to insert tw
 edge_case = "PNode_name_in_pnode"
 write_test_xml(node, parent_node, edge_case)
 ```
-
-## Input test toml file
-This testing requires two toml files, one is the same input file for the Scraper program (with slight modification of the output\_path), and the other one specifically designed for this testing suite. 
-
-### Test Parameters
-
-- **`skip_cols`**  
-  A list of column names to exclude from the similarity comparison.  
-
-- **`which_test`**  
-  Specifies the matching strategy used to align rows between the gold-standard CSV and the scraped output.  
-  - `"exact"`: Rows are matched only if the full speech text matches exactly.  
-  - `"fuzzy"`: Rows are matched using sampled word sequences from the speech text, allowing for minor textual differences.
-
-- **`fuzzy_search`**  
-  Controls how speech text is sampled in fuzzy matching mode.  
-  This option is only used when `which_test = "fuzzy"`.  
-  The value is a two-element array:
-  - The first element specifies the number of consecutive words in each sample.
-  - The second element specifies the step size (interval) between successive samples.  
-  For example, `[5, 2]` means that samples of 5 consecutive words are taken, starting every 2 words along the speech.
-
-- **`which_house`**  
-  Indicates which parliamentary house the data belongs to and should be tested against.  
-  This is used to select the appropriate gold-standard reference files and parsing rules.  
-  Common values include:
-  - `"house"`: House of Representatives  
-  - `"senate"`: Senate
-
-### Sample input file
-
-```
-[ test_params ]
-    skip_cols = ["speaker_no","non_speech_flag","page.no","name","electorate","party","role","path","Speaker","Time","Other"]
-    #or exact
-    which_test = "fuzzy"
-    fuzzy_search = [5,2]
-    which_house = "house"
-    which_tests = ["gold_standard","summary","toy_xml_test","MP_specific_gs"]
-```
-
 
