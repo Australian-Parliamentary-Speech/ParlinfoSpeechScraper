@@ -164,6 +164,9 @@ The test performs the following checks:
 - **XML vs official sitting days**  
   Compares XML dates against the sitting days in `sitting_dates.csv` to identify sitting days for which no XML file exists.
 
+- **Filename date vs `date_comparison.csv`** *(hard failure)*  
+  While converting each XML file, `run_PSSConvert` (in `RunModule.jl`) logs one row per file to `date_comparison.csv` in the output directory, recording the date parsed from the filename alongside the date parsed from the XML content itself. This check asserts that the set of filename dates in `date_comparison.csv` matches the set of dates found in the CSV output directory — i.e. that every scraped CSV is accounted for in the log. Unlike the other checks in this test, a mismatch here fails the test rather than just being reported.
+
 The test runs once for each house, comparing against the matching sitting calendar (House of Representatives or Senate) each time.
 
 The test writes its full date listings, along with the diagnostic mismatches, to `test_outputs/dates/`:
@@ -173,8 +176,9 @@ The test writes its full date listings, along with the diagnostic mismatches, to
 - `only_in_xml_<house>.csv` — dates present in the XML input with no corresponding CSV output
 - `only_in_sitting_not_xml_<house>.csv` — official sitting dates with no corresponding XML file
 - `only_in_sitting_not_csv_<house>.csv` — official sitting dates with no corresponding CSV output
+- `date_mismatches_<house>.csv` — rows from `date_comparison.csv` where the filename date and the XML-derived date disagree (e.g. a file misnamed relative to the sitting date recorded in its own content)
 
-The test always passes and is intended to provide a diagnostic summary rather than enforce a hard failure.
+Aside from the filename-date-vs-log check described above, the test is intended to provide a diagnostic summary rather than enforce a hard failure.
 
 
 ## Toy XML Tests (Edge-Case XML Testing)

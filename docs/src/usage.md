@@ -174,6 +174,17 @@ For a directory of xmls (for House), this is also anexample where you can run mu
     xml_name_clean = false
 ```
 
+## Output: how dates are determined
+
+Every XML file has a date associated with two independent sources, which don't always agree:
+
+- **Filename date** — parsed from the XML file's name, which is expected to follow the `YYYY_MM_DD.xml` pattern (e.g. `2020_02_12.xml`). This is the date used to name output files: the final CSV for a given sitting is written as `<filename_date>_edit_step<N>.csv`.
+- **XML date** — parsed from the date recorded inside the XML content itself, either from `session.header/date` or the `hansard/@date` attribute, depending on the document format.
+
+Both dates are extracted for every file processed (see `get_date` in `RunModule.jl`). When they disagree, a warning is logged (`XML and Filename do not agree on dates`), but this does not stop processing — the **filename date** is always the one used for naming output files and detecting which processing phase applies.
+
+To keep both pieces of information available for auditing rather than discarding the XML-derived date once the filename date is chosen, every run writes `date_comparison.csv` to the top of `output_path`, with one row per XML file processed and two columns, `Filename Date` and `XML Date`. This lets you find every file where the two disagree after the fact, without having to re-parse the XML. The dates summary test (see [Dates summary test](test.md#dates-summary-test)) checks this file automatically and reports any mismatches.
+
 ## Edit steps
 
 ### stage\_direction
