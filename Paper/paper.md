@@ -43,7 +43,9 @@ An earlier point of comparison is *Digitization of the Australian Parliamentary 
 
 A more recent project, *Hansard DB* [@chadwick2026hansarddb], releases a relational database of Australian parliamentary speech with question-answer pairing, typed interjections, and career-spanning speaker identity — but built by nine era-specific parsers that must be reworked from scratch if ParlInfo's XML format were to change again in the future. 
 
-ParlinfoSpeechScraper, on the other hand, isolates period-specific parsing behind Julia's multiple dispatch: each feature is modular, in the sense that no existing file needs to be rewritten to accommodate a new era or a schema change — only a new module needs to be added. The speaker-identity resolution used by Hansard DB was developed by @leslie2024ausph, a member of our own project team, and can be used to extend ParlinfoSpeechScraper's output. A database like Hansard DB is one possible product of running this software, not a substitute for having it.
+ParlinfoSpeechScraper, on the other hand, isolates period-specific parsing behind Julia's multiple dispatch: each feature is modular, in the sense that no existing file needs to be rewritten to accommodate a new era or a schema change — only a new module needs to be added. The speaker-identity resolution used by Hansard DB was developed by @leslie2024ausph, a member of our own project team, and can be used to extend ParlinfoSpeechScraper's output. A database like Hansard DB is one possible product of running this software, not a substitute for having it. 
+
+Unlike Hansard DB, which is distributed as a static local database, the database produced from ParlinfoSpeechScraper's output will be hosted and maintained on the cloud, allowing it to be kept up to date as new Hansard records are published without requiring users to re-download or rebuild it themselves.
 
 # Software design
 
