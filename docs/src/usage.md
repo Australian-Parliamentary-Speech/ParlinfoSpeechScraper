@@ -18,7 +18,7 @@ or, to run both:
 make run all
 ```
 
-This uses the TOML file at `examples/house.toml` or `examples/senate.toml` to drive `PSSConvert`. See the [top-level README](../../README.md#running-the-pipeline) for what the other stages (`PSSSourceXML`, `PSSSourceSGML`) produce.
+This uses the TOML file at `examples/house.toml` or `examples/senate.toml` to drive `PSSConvert`.
 
 To re-run just the CSV parsing/editing step against a custom TOML file, without re-downloading anything, run it from `src/PSSConvert`:
 
