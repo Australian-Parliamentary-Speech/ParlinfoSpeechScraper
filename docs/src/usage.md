@@ -1,69 +1,93 @@
 # Usage
 
-Here we desribe the user interface regarding inputs and outputs. 
+Here we describe the user interface regarding inputs and outputs for `PSSConvert`, the submodule that parses raw Hansard XML into CSV.
 
-## Input XML files
-The location of the input XML files is configured via a TOML file in src/Inputs/. The default configuration at Inputs/hansard/<house|senate>.toml specifies three directories under XML\_DIR. To use custom input paths, provide your own TOML file and set XML_DIR accordingly.
+## Running PSSConvert
 
-To run the program, navigate to the src/ directory and run:
-
-```console 
-./run Inputs/hansard/house.toml
-```
-or 
+The normal way to run the full pipeline (downloading XML, downloading and converting SGML, then parsing into CSVs) is from the root of the repo:
 
 ```console
-./run <insert your TOML file>
+make run house
+```
+or
+```console
+make run senate
+```
+or, to run both:
+```console
+make run all
 ```
 
-### Input TOML file
-The input TOML file defines all configuration for the program. This section documents every available option, and provides ready-to-use starter TOML files for both the Senate and the House.
+This uses the TOML file at `examples/house.toml` or `examples/senate.toml` to drive `PSSConvert`. See the [top-level README](../../README.md#running-the-pipeline) for what the other stages (`PSSSourceXML`, `PSSSourceSGML`) produce.
 
-* output\_path (under [ global ]): 
+To re-run just the CSV parsing/editing step against a custom TOML file, without re-downloading anything, run it from `src/PSSConvert`:
+
+```console
+cd src/PSSConvert
+make run <path-to-your-toml-file>
+```
+
+which forwards to `bin/run <path-to-your-toml-file>`. Useful flags (pass them after the TOML path):
+
+* `-c`, `--should_compress` - compress the output directory into a `.tar.zst` once processing finishes
+* `-s`, `--skip` - skip processing entirely (typically combined with `-c` to just compress an already-completed run)
+* `-v`, `--verbose` - increase logging verbosity
+
+### Input TOML file
+
+The input TOML file defines all configuration for a `PSSConvert` run. This section documents every available option, and points to ready-to-use starter TOML files for both the Senate and the House.
+
+Any relative path written inside the TOML file (`output_path`, and the `path`/`filename` under `XML_DIR`/`XML`) is resolved relative to the **directory containing the TOML file itself**, not the directory you ran the command from.
+
+* output\_path (under [global]):
     - where to save the final CSV files after processing
-    Example: if set to "../../Outputs/HouseCSV/hansard", the output files will be saved there 
+    - Example: if set to "../output/source_csv/house" and the TOML file lives in `examples/`, the output files are saved to `output/source_csv/house` at the repo root
 
 * path (under [[ XML\_DIR ]]):
-    - You can either run one single file or one entire directory. 
-    - Example for an entire directory: "house\_xmls" will process all XML files in that folder
-    - Example for a single file: "house\_xmls/1983/1983\_11\_09.xml" processes just that one file
+    - a directory to process. All XML files under its year subdirectories are processed
+    - Example: "../output/source_xml/house/xmls" processes every year subdirectory found there
+    - You can list multiple `[[ XML_DIR ]]` blocks to process several directories (e.g. XML downloaded via `PSSSourceXML` alongside XML converted from SGML via `PSSSourceSGML`)
 
+* filename (under [[ XML ]]):
+    - use this instead of `XML_DIR` to process a single file rather than a whole directory
+    - Example: "house_xmls/1983/1983_11_09.xml" processes just that one file
 
 * which\_house (under [general\_options] )
     - Options: "house" for House of Representatives, "senate" for Senate
- 
+
 * year (under [general\_options])
     - Which years to process
     - Example: [1996,1997] processes years 1996 and 1997
     - Example: [2000,2000] processes only year 2000
 
 * xml\_parsing (under [general\_options])
-    - Whether to skip scraping 
+    - Whether to skip scraping
     - true = extract data from XML files
-    - false = skip scraping, assuming there exists outputs. This is for runs that require editting only. 
+    - false = skip scraping, assuming there exists outputs. This is for runs that require editting only.
 
 * edit (under [general\_options])
     - Processing steps to clean and format the CSV files after parsing
     - These run in the order listed - each step processes the output of the previous step
     - Common steps: "speaker\_time", "re", "free\_node", "flatten", "column\_decorate" (more explanation see below)
-    - The order matters. It is strongly recommended to use the list provided in the sample file for the best outcome 
+    - The order matters. It is strongly recommended to use the list provided in the sample file for the best outcome
 
-* csv\_edit 
+* csv\_edit
     - Whether to apply editing operations to CSV files
-    - true = apply edits 
+    - true = apply edits
     - false = skip edits, keep raw extracted data
 
 * run\_xml\_toggle
     - Master switch for all XML processing functions
     - true = run all XML processing steps normally. This is the recommended option.
-    - false = skip all XML functions, only write samples or remove processing steps. 
+    - false = skip all XML functions, only write samples or remove processing steps.
 
 * sample
+    - Optional; defaults to false if omitted
     - Whether to create sample output files for testing
     - true = create smaller sample files to check if processing works correctly
     - false = process all data without creating samples
 
-* remove\_nums 
+* remove\_nums
     - Which intermediate CSV files to delete after processing (to save disk space)
     - The program creates files named like "data\_step\_0.csv", "data\_step\_1.csv", etc. This setting deletes those intermediate files, keeping only the final result
     - Default: [0,1,2,3,4,5,6,7] deletes everything except the final step.
@@ -76,103 +100,62 @@ The input TOML file defines all configuration for the program. This section docu
     - true = rename files to standard format. This is the recommended option.
     - false = keep original filenames
 
-
 ### Quick start input files
 
-For a single XML file (for senate):
-```
-[ global ]
-    output_path = "../../Outputs/SenateCSV/hansard"
+Ready-to-use starter files live at the repo root in `examples/house.toml` and `examples/senate.toml`, and are what `make run house`/`senate` use by default.
 
-[[ XML ]]
-    filename = "hansard/senate_reserve_xmls/1999/1999_06_25.xml"
-
-[ general_options ]
-    which_house = "senate"
-    year = [1901,2025]
-    xml_parsing = true
-    edit = ["speaker_time","re","stage_direction","free_node","flatten","flatten","column_decorate","final_re"]
-    csv_edit = true
-    run_xml_toggle = true
-    sample = true
-    remove_nums = [0,1,2,3,4,5,6,7]
-    xml_name_clean = false
-```
-Note that if the date for the single XML is out of range from the year defined, the program might not run.
-
-For a directory of xmls (for Senate):
-
-```
-[ global ]
-    output_path = "../../Outputs/SenateCSV/hansard"
+For the House:
+```toml
+[global]
+output_path = "../output/source_csv/house"
 
 [[ XML_DIR ]]
-    path = "hansard/senate_reserve_xmls"
+path = "../output/source_xml/house/xmls"
 
-[ general_options ]
-    which_house = "senate"
-    year = [1901,2025]
-    xml_parsing = true
-    edit = ["speaker_time","re","free_node","flatten","flatten","column_decorate","re"]
-    csv_edit = true
-    run_xml_toggle = true
-    sample = false
-    remove_nums = [0,1,2,3,4,5,6]
-    xml_name_clean = false
-```
-For a single XML file (for House):
-```
-[ global ]
-    output_path = "../Outputs/HouseCSV/hansard"
-
-[[ XML ]]
-    filename = "hansard/house_reserve_xmls/2010/2010_02_10.xml"
+[[ XML_DIR ]]
+path = "../output/source_sgml/house/xmls"
 
 [ general_options ]
     which_house = "house"
-    year = [1901,2025]
+    year = [1901,2026]
     xml_parsing = true
     edit = ["speaker_time","re","stage_direction","free_node","flatten","flatten","column_decorate","final_re"]
     csv_edit = true
     run_xml_toggle = true
-    sample = true
     remove_nums = [0,1,2,3,4,5,6,7]
     xml_name_clean = false
 ```
 
-Note that if the date for the single XML is out of range from the year defined, the program might not run.
-
-For a directory of xmls (for House), this is also anexample where you can run multiple directories:
-
-```
-[ global ]
-    output_path = "../Outputs/HouseCSV/hansard"
-
-###choose one: XML or XML_DIR
-#[[ XML ]]
-#    filename = "hansard/house_reserve_xmls/2010/2010_02_10.xml"
+For the Senate:
+```toml
+[global]
+output_path = "../output/source_csv/senate"
 
 [[ XML_DIR ]]
-    path = "../../Download/house_xmls"
+path = "../output/source_xml/senate/xmls"
 
 [[ XML_DIR ]]
-    path = "../../sgml2xml/house_reserve_xmls"
-
-[[ XML_DIR ]]
-    path = "../../sgml2xml/house_xmls"
-
+path = "../output/source_sgml/senate/xmls"
 
 [ general_options ]
-    which_house = "house"
-    year = [1901,2025]
+    which_house = "senate"
+    year = [1901,2026]
     xml_parsing = true
     edit = ["speaker_time","re","stage_direction","free_node","flatten","flatten","column_decorate","final_re"]
     csv_edit = true
     run_xml_toggle = true
-    sample = true
     remove_nums = [0,1,2,3,4,5,6,7]
     xml_name_clean = false
 ```
+
+To process a single XML file instead of a whole directory, swap the `[[ XML_DIR ]]` block(s) for a single `[[ XML ]]` block:
+
+```toml
+[[ XML ]]
+filename = "house_reserve_xmls/2010/2010_02_10.xml"
+```
+
+Note that if the date for the single XML is out of range from the `year` defined, the program might not run.
 
 ## Output: how dates are determined
 
@@ -187,12 +170,14 @@ To keep both pieces of information available for auditing rather than discarding
 
 ## Edit steps
 
+Edit step implementations live in `src/PSSConvert/src/edit_funcs/`.
+
 ### stage\_direction
 
 Identifies the parliamentary stage directions.
 
 - Detects parliamentary stage directions using known procedural phrases
-- Set speaker to "N/A". 
+- Set speaker to "N/A".
 
 
 ### speaker\_time
@@ -213,7 +198,7 @@ Extracts speaker information and cleans speech text.
 
 ### free\_node
 
-There are many unauthored speeches from the raw processing of XML. This step resolves unattributed (“free-flowing”) rows within a debate.
+There are many unauthored speeches from the raw processing of XML. This step resolves unattributed ("free-flowing") rows within a debate.
 
 - Assigns free or missing speaker names to the most recent valid speaker in the same debate
 - Attributes quoted or continued speech to the correct speaker where possible
@@ -234,6 +219,3 @@ Applies final cleaning and standardisation to the CSV output.
 - Reclassifies rows with speaker information as speech
 - Cleans speech text by removing leading punctuation and excess whitespace
 - Drops rows with empty speech content
- 
-
-

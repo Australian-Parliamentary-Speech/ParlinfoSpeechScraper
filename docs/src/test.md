@@ -34,7 +34,12 @@ test_outputs/
 Each directory is only written to when the matching string is present in `which_tests`, in `test_inputs/test.toml` — see [`which_tests`](#Test-Parameters) below for how to edit that list. The sections below go through each test in detail, including exactly what each output file contains.
 
 ## Input test toml file
-This testing requires two toml files, one is the same input file for the Scraper program (with slight modification of the output\_path), and the other one specifically designed for this testing suite. 
+This testing requires two toml files, one is the same input file for the Scraper program (with slight modification of the output\_path), and the other one specifically designed for this testing suite.
+
+Both files live in `src/PSSConvert/test/test_inputs/`:
+
+- `house.toml` / `senate.toml` — the Scraper's own input files (see [Usage](usage.md#input-toml-file)), reused here so the tests scrape against the same configuration as a normal run
+- `test.toml` — the testing-suite-specific parameters described below
 
 ### Test Parameters
 
@@ -52,14 +57,14 @@ This testing requires two toml files, one is the same input file for the Scraper
 - **`skip_cols`**  
   A list of column names to exclude from the similarity comparison.  
 
-- **`which_test`**  
+- **`which_sim_test`**  
   Specifies the matching strategy used to align rows between the gold-standard CSV and the scraped output.  
   - `"exact"`: Rows are matched only if the full speech text matches exactly.  
   - `"fuzzy"`: Rows are matched using sampled word sequences from the speech text, allowing for minor textual differences.
 
 - **`fuzzy_search`**  
   Controls how speech text is sampled in fuzzy matching mode.  
-  This option is only used when `which_test = "fuzzy"`.  
+  This option is only used when `which_sim_test = "fuzzy"`.  
   The value is a two-element array:
   - The first element specifies the number of consecutive words in each sample.
   - The second element specifies the step size (interval) between successive samples.  
@@ -71,7 +76,7 @@ This testing requires two toml files, one is the same input file for the Scraper
 [ test_params ]
     skip_cols = ["speaker_no","non_speech_flag","page.no","name","electorate","party","role","path","Speaker","Time","Other"]
     #or exact
-    which_test = "fuzzy"
+    which_sim_test = "fuzzy"
     fuzzy_search = [5,2]
     which_tests = ["gold_standard","summary","toy_xml_test","MP_specific_gs"]
 ```
