@@ -28,7 +28,7 @@ ifndef $(JULIA)
 endif
 
 ifndef $(JULIA_CMD)
-	JULIA_CMD=$(JULIA) --color=yes --startup-file=no
+	JULIA_CMD=$(JULIA) --color=yes --startup-file=no --project=@.
 endif
 
 #
