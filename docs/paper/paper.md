@@ -1,29 +1,31 @@
 ---
-title: {{ ParlinfoSpeechScraper: A Julia package to scrape Hansard speech data}} # Title of the paper
-date: {{ DD Month YYYY }} # Submission date
+title: "ParlinfoSpeechScraper: A Julia package to scrape Hansard speech data"
+date: {{ DD Month YYYY }}
 authors:
-    - name: {{ Eve Cheng }} # Name. See [here](https://joss.readthedocs.io/en/latest/paper.html#author-names)
-      affiliation: "{{ Mathematical Sciences Institute }}, {{ Australian National University }}" # Affiliations
-      orcid: {{ 0000-0003-3108-4000 }} # Orcid
+    - name: "Eve Cheng"
+      affiliation: "1" # Affiliations
+      orcid: "0000-0003-3108-4000"
       corresponding: true # Is this the corresponding author?
       equal-contrib: true # Did this author contribute the same as other `equal-contrib` authors?
-    - name: {{ Patrick Armstrong }} # Name
-      affiliation: "{{ affiliation_1 }}, {{ affiliation_2 }}" # Affiliations
-      orcid: {{ orcid_2 }} # Orcid
+    - name: "Patrick Armstrong"
+      affiliation: "2, 3, 4"
+      orcid: "0000-0003-1997-3649"
       corresponding: false # Is this the corresponding author?
       equal-contrib: true # Did this author contribute the same as other `equal-contrib` authors?
-    - ...
 affiliations:
-    - name: {{ name_1 }} # Affiliation name
+    - name: "The Mathematical Sciences Institute, The Australian National University, Canberra, ACT 2611, Australia"
       index: 1
+    - name: "The Research School of Astronomy and Astrophysics, The Australian National University, Canberra, ACT 2611, Australia"
+      index: 2
+    - name: "Department of Physics, University of California Berkeley, Berkeley, CA 94720, USA"
+      index: 3
+    - name: "E.O. Lawrence Berkeley National Laboratory, 1 Cyclotron Rd., Berkeley, CA, 94720, USA"
+      index: 4
 tags:
-    - {{ Julia }} # Primary programming language
-    - {{ Python }} # Other programming languages
-    - ...
-    - {{ Political science }} # Primary research field
-    - {{ field_2 }} # Other research fields
-    - ...
-bibliography: paper.bib
+    - "julia"
+    - "python"
+    - "political science"
+bibliography: "paper.bib"
 ---
 
 # Summary
