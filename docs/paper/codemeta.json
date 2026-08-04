@@ -1,0 +1,15 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [],
+  "identifier": "",
+  "codeRepository": "https://github.com/Australian-Parliamentary-Speech",
+  "datePublished": "2026-08-04",
+  "dateModified": "2026-08-04",
+  "dateCreated": "2026-08-04",
+  "description": "This project is an end-to-end pipeline for downloading, parsing, and reformatting Hansard data into machine-readable CSV files.",
+  "keywords": "julia, python, political science",
+  "license": "GPL v3.0",
+  "title": "ParlinfoSpeechScraper",
+  "version": "v1.0.0"
+}
