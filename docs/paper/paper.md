@@ -55,8 +55,6 @@ The download stage retrieves Hansard files from ParlInfo by walking the site's s
 
 The scraping stage makes a single top-to-bottom pass through each XML file, reading nodes in order and writing any text content it finds — along with the speaker's name, affiliation, and contextual metadata — directly to CSV. Differences in XML structure across historical periods are handled by the same core algorithm, which is aware of the phase associated with each historical period.
 
-{{ software_design }} # An explanation of the trade-offs you weighed, the design/architecture you chose, and why it matters for your research application. This should demonstrate meaningful design thinking beyond a superficial code structure description.
-
 # Research impact statement
 
 As part of the ARC Discovery Project, a Hansard database built from the output of this software, along with papers on parliamentary representation and deliberation, will be produced by the project team.
