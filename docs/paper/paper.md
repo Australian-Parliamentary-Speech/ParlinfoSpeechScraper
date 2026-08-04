@@ -1,6 +1,6 @@
 ---
 title: "ParlinfoSpeechScraper: A Julia package to scrape Hansard speech data"
-date: {{ DD Month YYYY }}
+date: "04 08 2026"
 authors:
     - name: "Eve Cheng"
       affiliation: "1" # Affiliations
