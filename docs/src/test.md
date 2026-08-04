@@ -155,6 +155,35 @@ The maximum similarity ratio is generally **less than 1**, even though the files
 
 Gold-standard files reflect the state of the scraped output at the time they were manually corrected. As the scraping pipeline receives further fixes, the current output can diverge from the version the gold standard was originally checked against. Some of the discrepancies flagged by the similarity score therefore reflect an outdated gold standard rather than a regression in the current output. As a result, the similarity ratio should be treated as a conservative estimate: actual output quality is typically higher than the reported ratio, until the gold-standard files are refreshed against the current output.
 
+### Dates covered by gold standard files
+
+Gold-standard CSVs live in `test/gold_standard/<house>/`, one file per date. The dates currently covered are:
+
+**House**
+
+- 1902-01-22
+- 1919-07-04
+- 1928-03-02
+- 1939-05-09
+- 1943-02-05
+- 1968-03-21
+- 1974-03-13
+- 1979-03-01
+- 1987-02-24
+- 1998-03-10
+- 1999-02-16
+- 2010-02-10
+- 2013-02-13
+- 2015-02-24
+- 2025-02-12
+
+**Senate**
+
+- 1959-10-22
+- 1978-03-02
+- 1999-02-16
+- 2019-07-30
+
 ## Dates summary test
 
 This summary test checks for missing or unprocessed dates in the scraping pipeline by comparing the XML input and CSV output against `test_inputs/sitting_dates.csv` — the authoritative list of every parliamentary sitting date, pulled from the Hansard API.  
