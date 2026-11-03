@@ -66,7 +66,8 @@ jl-init:
 	@$(JULIA_CMD) -e "using Pkg; Pkg.instantiate()"
 
 git-submodules:
-	@printf "${DARK}%s${RESET}\n" "$$(git submodule update --init --recursive 2>&1)"
+	@git submodule sync --recursive >/dev/null
+	@git submodule update --init --recursive || { printf "${RED}Could not fetch the submodules (see the git error above)${RESET}\n"; exit 1; }
 
 $(ID): # Ensure submodules exist
 	@printf "${GREEN}Installing $(ID)${RESET}\n"
