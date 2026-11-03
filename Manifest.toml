@@ -479,7 +479,7 @@ version = "1.0.0"
 
 [[deps.PSSSourceXML]]
 deps = ["ArgParse", "Cascadia", "Dates", "EzXML", "Gumbo", "PSSUtils", "ProgressMeter"]
-path = "src/PSSSourceSGML"
+path = "src/PSSSourceXML"
 uuid = "af97d874-fa58-45c9-9f9b-f897631dd46c"
 version = "1.0.0"
 
